@@ -1,0 +1,22 @@
+* {
+    box-sizing: border-box;
+}
+
+.board {
+    border-spacing: 2px;
+    background-color: gray;
+}
+
+.board__cell {
+    width: 25px;
+    height: 25px;
+    border: black solid 1px;
+}
+
+.board__cell--close {
+    background-color: steelblue;
+}
+
+.board__cell--open {
+    background-color: white;
+}
