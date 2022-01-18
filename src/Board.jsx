@@ -25,7 +25,7 @@ function Cell(props) {
     displayValue = 'F';
   }
   return (
-    <td className={className} onClick={props.onClick} onContextMenu={preventDefault}>{displayValue}</td>
+    <td className={className} onClick={props.onClick} onContextMenu={props.onContextMenu}>{displayValue}</td>
   );
 }
 
@@ -74,7 +74,7 @@ function floodFill(row, col, board, cellStates) {
   for (let i = 0; i < 4; ++i) {
     const r = row + dr4[i];
     const c = col + dc4[i];
-    if (r >= 0 && r < board.length && c >= 0 && c < board[r].length && cellStates[r][c] === 0) {
+    if (r >= 0 && r < board.length && c >= 0 && c < board[r].length && cellStates[r][c] !== 1) {
       if (board[r][c] === 0) {
         floodFill(r, c, board, cellStates);
       }
@@ -89,7 +89,7 @@ function onCellLeftClick(e, row, col, board, cellStates, setCellStates) {
   if (e.button !== 0) {
     return;
   }
-  if (cellStates[row][col] === 1) {
+  if (cellStates[row][col] !== 0) {
     return;
   }
 
@@ -108,13 +108,13 @@ function onCellLeftClick(e, row, col, board, cellStates, setCellStates) {
 
 function onCellRightClick(e, row, col, cellStates, setCellStates) {
   e.preventDefault();
-  if (cellStates[row][col] !== 0) {
+  if (cellStates[row][col] === 1) {
     return;
   }
 
   const newBoard = [...cellStates];
   newBoard[row] = [...cellStates[row]];
-  newBoard[row][col] = 2;
+  newBoard[row][col] = 2 - cellStates[row][col];
   setCellStates(newBoard);
 }
 
@@ -138,7 +138,8 @@ export function Board(props) {
     const cells = [];
     for (let j = 0; j < props.columnCount; ++j) {
       const onClick = (e) => onCellLeftClick(e, i, j, board, cellStates, setCellStates);
-      cells.push(<Cell key={j} state={cellStates[i][j]} value={board[i][j]} onClick={onClick} />);
+      const onContextMenu = (e) => onCellRightClick(e, i, j, cellStates, setCellStates);
+      cells.push(<Cell key={j} state={cellStates[i][j]} value={board[i][j]} onClick={onClick} onContextMenu={onContextMenu} />);
     }
     rows.push(<tr key={i}>{cells}</tr>);
   }
