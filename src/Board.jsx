@@ -6,11 +6,22 @@ function preventDefault(e) {
   e.preventDefault();
 }
 
+function mouse(e) {
+  console.log(e.type, e.button, e.buttons);
+}
+
 function Cell(props) {
   const className = [
     'board__cell',
-    (props.state === 1) ? 'board__cell--open' : 'board__cell--close',
-  ].join(' ');
+    'board__cell--close',
+  ];
+  if (props.state === 1) {
+    className[1] = 'board__cell--open';
+  }
+  else if (props.hint) {
+    className[1] = 'board__cell--hint';
+  }
+
   let displayValue = null;
   if (props.state === 1) {
     if (props.value === 0) {
@@ -25,7 +36,17 @@ function Cell(props) {
     displayValue = 'F';
   }
   return (
-    <td className={className} onClick={props.onClick} onContextMenu={props.onContextMenu}>{displayValue}</td>
+    <td className={className.join(' ')} 
+        onClick={props.onClick} 
+        onContextMenu={props.onContextMenu} 
+        onDragStart={preventDefault}
+        onMouseDown={props.onMouseDown}
+        onMouseUp={props.onMouseUp}
+        onMouseEnter={props.onMouseEnter}
+        onMouseLeave={props.onMouseLeave}
+    >
+      {displayValue}
+    </td>
   );
 }
 
@@ -119,6 +140,53 @@ function onCellRightClick(e, row, col, cellStates, setCellStates) {
   setCellStates(newBoard);
 }
 
+// How to?
+// 1. candidate중심 좌표만 저장하고 셀 렌더링할 때 주변 8칸에 중심좌표 있으면 후보로 표시
+// 2. 2차원배열로 저장
+// 3. Set으로 저장? -> Object 값 비교가 안돼서 JSON이나 toString쓰면 더 느릴듯?
+// 일단 1번으로. 중심좌표와 row, col 차의 절대값이 1이하이면 표시.
+// closed 에 왼쪽 down하면 커서 표시
+// closed, 숫자에 양쪽 down하면 커서 + 후보 표시
+// Todo: 플래그랑 곂치는거 어떻게할지. (안곂치게 처리 or closed에는 후보 표시 X)
+//   -> 일단 closed에는 후보 표시 X
+function onCellMouseDown(e, row, col, board, cellStates, setCursor) {
+  if (e.buttons === 3) {
+    if (/*cellStates[row][col] === 0 || */(cellStates[row][col] === 1 && board[row][col] > 0)) {
+      setCursor({cell: [row, col], showCandidates: true});
+    }
+  }
+  else if (e.buttons === 1) {
+    if (cellStates[row][col] === 0) {
+      setCursor({cell: [row, col], showCandidates: false});
+    }
+  }
+}
+
+function onCellMouseLeave(e, row, col, cursor, setCursor) {
+  if (cursor.cell !== null && cursor.cell[0] === row && cursor.cell[1] === col) {
+    setCursor({cell: null, showCandidates: false});
+  }
+}
+
+function onCellMouseEnter(e, row, col, board, cellStates, setCursor) {
+  if (e.buttons === 3) {
+    if (/*cellStates[row][col] === 0 || */(cellStates[row][col] === 1 && board[row][col] > 0)) {
+      setCursor({cell: [row, col], showCandidates: true});
+    }
+  }
+  else if (e.buttons === 1) {
+    if (cellStates[row][col] === 0) {
+      setCursor({cell: [row, col], showCandidates: false});
+    }
+  }
+}
+
+function onCellMouseUp(e, row, col, cursor, setCursor) {
+  if (cursor.cell !== null && cursor.cell[0] === row && cursor.cell[1] === col) {
+    setCursor({cell: null, showCandidates: false});
+  }
+}
+
 export function Board(props) {
   const [board, setBoard] = useState(
     () => generateBoard(props.rowCount, props.columnCount, 10)
@@ -134,13 +202,31 @@ export function Board(props) {
     )
   );
 
+  const [cursor, setCursor] = useState({cell: null, showCandidates: false});
+
   const rows = [];
   for (let i = 0; i < props.rowCount; ++i) {
     const cells = [];
     for (let j = 0; j < props.columnCount; ++j) {
       const onClick = (e) => onCellLeftClick(e, i, j, board, cellStates, setCellStates);
       const onContextMenu = (e) => onCellRightClick(e, i, j, cellStates, setCellStates);
-      cells.push(<Cell key={j} state={cellStates[i][j]} value={board[i][j]} onClick={onClick} onContextMenu={onContextMenu} />);
+      const onMouseDown = (e) => onCellMouseDown(e, i, j, board, cellStates, setCursor);
+      const onMouseEnter = (e) => onCellMouseEnter(e, i, j, board, cellStates, setCursor);
+      const onMouseLeave = (e) => onCellMouseLeave(e, i, j, cursor, setCursor);
+      const onMouseUp = (e) => onCellMouseUp(e, i, j, cursor, setCursor);
+      const hint = (cursor.cell !== null) &&
+                   ((cursor.cell[0] === i && cursor.cell[1] === j) || 
+                   (cursor.showCandidates && Math.abs(cursor.cell[0] - i) <= 1 && Math.abs(cursor.cell[1] - j) <= 1));
+      cells.push(<Cell key={j} 
+                       state={cellStates[i][j]} 
+                       value={board[i][j]} 
+                       onClick={onClick} 
+                       onContextMenu={onContextMenu} 
+                       onMouseDown={onMouseDown}
+                       onMouseEnter={onMouseEnter}
+                       onMouseLeave={onMouseLeave}
+                       onMouseUp={onMouseUp}
+                       hint={hint} />);
     }
     rows.push(<tr key={i}>{cells}</tr>);
   }

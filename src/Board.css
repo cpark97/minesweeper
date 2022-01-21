@@ -11,6 +11,7 @@
     width: 25px;
     height: 25px;
     border: black solid 1px;
+    user-select: none;
 }
 
 .board__cell--close {
@@ -19,4 +20,8 @@
 
 .board__cell--open {
     background-color: white;
+}
+
+.board__cell--hint {
+    background-color: gray;
 }
