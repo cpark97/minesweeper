@@ -18,7 +18,7 @@ function Cell(props) {
   if (props.state === 1) {
     className[1] = 'board__cell--open';
   }
-  else if (props.hint) {
+  else if (props.state === 0 && props.hint) {
     className[1] = 'board__cell--hint';
   }
 
@@ -37,8 +37,7 @@ function Cell(props) {
   }
   return (
     <td className={className.join(' ')} 
-        onClick={props.onClick} 
-        onContextMenu={props.onContextMenu} 
+        onContextMenu={preventDefault} 
         onDragStart={preventDefault}
         onMouseDown={props.onMouseDown}
         onMouseUp={props.onMouseUp}
@@ -107,10 +106,7 @@ function floodFill(row, col, board, cellStates) {
   }
 }
 
-function onCellLeftClick(e, row, col, board, cellStates, setCellStates) {
-  if (e.button !== 0) {
-    return;
-  }
+function openCell(row, col, board, cellStates, setCellStates) {
   if (cellStates[row][col] !== 0) {
     return;
   }
@@ -128,8 +124,7 @@ function onCellLeftClick(e, row, col, board, cellStates, setCellStates) {
   }
 }
 
-function onCellRightClick(e, row, col, cellStates, setCellStates) {
-  e.preventDefault();
+function flagCell(row, col, cellStates, setCellStates) {
   if (cellStates[row][col] === 1) {
     return;
   }
@@ -149,41 +144,73 @@ function onCellRightClick(e, row, col, cellStates, setCellStates) {
 // closed, 숫자에 양쪽 down하면 커서 + 후보 표시
 // Todo: 플래그랑 곂치는거 어떻게할지. (안곂치게 처리 or closed에는 후보 표시 X)
 //   -> 일단 closed에는 후보 표시 X
-function onCellMouseDown(e, row, col, board, cellStates, setCursor) {
-  if (e.buttons === 3) {
-    if (/*cellStates[row][col] === 0 || */(cellStates[row][col] === 1 && board[row][col] > 0)) {
-      setCursor({cell: [row, col], showCandidates: true});
+// 
+// 왼쪽 -> 표시
+// 오른쪽 -> 깃발
+// 양쪽 -> chord
+function onCellMouseDown(e, row, col, board, cellStates, setCellStates, setCursor) {
+  let cursor = null;
+  if (e.button === 0) {
+    // setState 호출 횟수 최적화
+    if (cellStates[row][col] === 0) {
+      cursor = {cell: [row, col], showCandidates: false};
     }
   }
-  else if (e.buttons === 1) {
-    if (cellStates[row][col] === 0) {
-      setCursor({cell: [row, col], showCandidates: false});
+  else if (e.button === 2) {
+    flagCell(row, col, cellStates, setCellStates);
+  }
+  if (e.buttons === 3) {
+    // setState 호출 횟수 최적화
+    // Todo: 실제 주변에 표시될 후보지가 있는지 체크? -> 체크 비용 vs 렌더링 비용
+    if (!(cellStates[row][col] === 1 && board[row][col] === 0)) {
+      cursor = {cell: [row, col], showCandidates: true};
     }
+  }
+  if (cursor !== null) {
+    setCursor(cursor);
   }
 }
 
+// 커서 나가면 암튼 해제
 function onCellMouseLeave(e, row, col, cursor, setCursor) {
   if (cursor.cell !== null && cursor.cell[0] === row && cursor.cell[1] === col) {
     setCursor({cell: null, showCandidates: false});
   }
 }
 
+// 커서 들어왔는데 양쪽 눌러져있으면 chord, 왼쪽만 눌러져있으면 표시
 function onCellMouseEnter(e, row, col, board, cellStates, setCursor) {
   if (e.buttons === 3) {
-    if (/*cellStates[row][col] === 0 || */(cellStates[row][col] === 1 && board[row][col] > 0)) {
+    // setState 호출 횟수 최적화
+    // Todo: 실제 주변에 표시될 후보지가 있는지 체크? -> 체크 비용 vs 렌더링 비용
+    if (!(cellStates[row][col] === 1 && board[row][col] === 0)) {
       setCursor({cell: [row, col], showCandidates: true});
     }
   }
   else if (e.buttons === 1) {
+    // setState 호출 횟수 최적화
     if (cellStates[row][col] === 0) {
       setCursor({cell: [row, col], showCandidates: false});
     }
   }
 }
 
-function onCellMouseUp(e, row, col, cursor, setCursor) {
-  if (cursor.cell !== null && cursor.cell[0] === row && cursor.cell[1] === col) {
+// 오른쪽 안눌러진 상태에서 왼쪽 뗌 -> open
+// 양쪽 모두 누르고 한쪽 뗌 -> chord
+function onCellMouseUp(e, row, col, board, cellStates, setCellStates, cursor, setCursor) {
+  console.log(e.button, e.buttons);
+  if (((e.buttons & 1) && e.button === 2) || ((e.buttons & 2) && e.button === 0)) {
+    //chord
+    // 표시 해제
+    setCursor({cell: (e.button === 2) ? [row, col] : null, showCandidates: false});
+    console.log('chord');
+  }
+  else if ((e.buttons & 2) === 0 && e.button === 0) {
+    // open
+    openCell(row, col, board, cellStates, setCellStates);
+    // 표시 해제
     setCursor({cell: null, showCandidates: false});
+    console.log('open');
   }
 }
 
@@ -208,20 +235,16 @@ export function Board(props) {
   for (let i = 0; i < props.rowCount; ++i) {
     const cells = [];
     for (let j = 0; j < props.columnCount; ++j) {
-      const onClick = (e) => onCellLeftClick(e, i, j, board, cellStates, setCellStates);
-      const onContextMenu = (e) => onCellRightClick(e, i, j, cellStates, setCellStates);
-      const onMouseDown = (e) => onCellMouseDown(e, i, j, board, cellStates, setCursor);
+      const onMouseDown = (e) => onCellMouseDown(e, i, j, board, cellStates, setCellStates, setCursor);
       const onMouseEnter = (e) => onCellMouseEnter(e, i, j, board, cellStates, setCursor);
       const onMouseLeave = (e) => onCellMouseLeave(e, i, j, cursor, setCursor);
-      const onMouseUp = (e) => onCellMouseUp(e, i, j, cursor, setCursor);
+      const onMouseUp = (e) => onCellMouseUp(e, i, j, board, cellStates, setCellStates, cursor, setCursor);
       const hint = (cursor.cell !== null) &&
                    ((cursor.cell[0] === i && cursor.cell[1] === j) || 
                    (cursor.showCandidates && Math.abs(cursor.cell[0] - i) <= 1 && Math.abs(cursor.cell[1] - j) <= 1));
       cells.push(<Cell key={j} 
                        state={cellStates[i][j]} 
                        value={board[i][j]} 
-                       onClick={onClick} 
-                       onContextMenu={onContextMenu} 
                        onMouseDown={onMouseDown}
                        onMouseEnter={onMouseEnter}
                        onMouseLeave={onMouseLeave}
