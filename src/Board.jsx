@@ -151,19 +151,28 @@ function flagCell(row, col, cellStates, setCellStates) {
 function onCellMouseDown(e, row, col, board, cellStates, setCellStates, setCursor) {
   let cursor = null;
   if (e.button === 0) {
+    if (e.buttons & 2) {
+      // setState 호출 횟수 최적화
+      // Todo: 실제 주변에 표시될 후보지가 있는지 체크? -> 체크 비용 vs 렌더링 비용
+      if (!(cellStates[row][col] === 1 && board[row][col] === 0)) {
+        cursor = {cell: [row, col], showCandidates: true};
+      }
+    }
     // setState 호출 횟수 최적화
-    if (cellStates[row][col] === 0) {
+    else if (cellStates[row][col] === 0) {
       cursor = {cell: [row, col], showCandidates: false};
     }
   }
   else if (e.button === 2) {
-    flagCell(row, col, cellStates, setCellStates);
-  }
-  if (e.buttons === 3) {
-    // setState 호출 횟수 최적화
-    // Todo: 실제 주변에 표시될 후보지가 있는지 체크? -> 체크 비용 vs 렌더링 비용
-    if (!(cellStates[row][col] === 1 && board[row][col] === 0)) {
-      cursor = {cell: [row, col], showCandidates: true};
+    if (e.buttons & 1) {
+      // setState 호출 횟수 최적화
+      // Todo: 실제 주변에 표시될 후보지가 있는지 체크? -> 체크 비용 vs 렌더링 비용
+      if (!(cellStates[row][col] === 1 && board[row][col] === 0)) {
+        cursor = {cell: [row, col], showCandidates: true};
+      }
+    }
+    else {
+      flagCell(row, col, cellStates, setCellStates);
     }
   }
   if (cursor !== null) {
@@ -202,15 +211,17 @@ function onCellMouseUp(e, row, col, board, cellStates, setCellStates, cursor, se
   if (((e.buttons & 1) && e.button === 2) || ((e.buttons & 2) && e.button === 0)) {
     //chord
     // 표시 해제
-    setCursor({cell: (e.button === 2) ? [row, col] : null, showCandidates: false});
+    setCursor({cell: null, showCandidates: false});
     console.log('chord');
   }
   else if ((e.buttons & 2) === 0 && e.button === 0) {
-    // open
-    openCell(row, col, board, cellStates, setCellStates);
-    // 표시 해제
-    setCursor({cell: null, showCandidates: false});
-    console.log('open');
+    if (cursor.cell !== null) {
+      // open
+      openCell(row, col, board, cellStates, setCellStates);
+      // 표시 해제
+      setCursor({cell: null, showCandidates: false});
+      console.log('open');
+    }
   }
 }
 
