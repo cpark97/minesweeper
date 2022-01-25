@@ -141,6 +141,49 @@ function flagCell(row, col, cellStates, setCellStates) {
   setCellStates(newBoard);
 }
 
+function chordCell(row, col, board, cellStates, setCellStates) {
+  if (cellStates[row][col] !== 1 || board[row][col] <= 0) {
+    return;
+  }
+
+  let flagCnt = 0;
+  const closedCells = [];
+  for (let i = 0; i < 8; ++i) {
+    const r = row + dr8[i];
+    const c = col + dc8[i];
+    if (r < 0 || r >= cellStates.length || c < 0 || c >= cellStates[r].length) {
+      continue;
+    }
+    if (cellStates[r][c] === 2) {
+      ++flagCnt;
+    }
+    else if (cellStates[r][c] === 0) {
+      closedCells.push([r, c]);
+    }
+  }
+
+  if (flagCnt != board[row][col]) {
+    return;
+  }
+
+  const newCellStates = [...cellStates];
+  for (const [r, c] of closedCells) {
+    if (board[r][c] === 0) {
+      floodFill(r, c, board, cellStates, newCellStates);
+    }
+    else if (board[r][c] > 0) {
+      if (newCellStates[r] === cellStates[r]) {
+        newCellStates[r] = [...cellStates[r]];
+      }
+      newCellStates[r][c] = 1;
+    }
+    else {
+      // Todo: game over
+    }
+  }
+  setCellStates(newCellStates);
+}
+
 // How to?
 // 1. candidate중심 좌표만 저장하고 셀 렌더링할 때 주변 8칸에 중심좌표 있으면 후보로 표시
 // 2. 2차원배열로 저장
@@ -216,6 +259,7 @@ function onCellMouseUp(e, row, col, board, cellStates, setCellStates, cursor, se
   console.log(e.button, e.buttons);
   if (((e.buttons & 1) && e.button === 2) || ((e.buttons & 2) && e.button === 0)) {
     //chord
+    chordCell(row, col, board, cellStates, setCellStates);
     // 표시 해제
     setCursor({cell: null, showCandidates: false});
     console.log('chord');
