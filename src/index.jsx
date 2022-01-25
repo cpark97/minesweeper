@@ -1,11 +1,12 @@
-import { StrictMode } from 'react'
-import { render } from 'react-dom'
-// import { HelloWorld } from './HelloWorld'
-import Board from './Board'
+import { StrictMode } from 'react';
+import { render } from 'react-dom';
+// import { HelloWorld } from './HelloWorld';
+// import Board from './Board';
+import MineSweeper from './MineSweeper';
 
 render(
   <StrictMode>
-    <Board rowCount={10} columnCount={10} />
+    <MineSweeper/>
   </StrictMode>,
   document.getElementById('root'),
 );
