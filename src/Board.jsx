@@ -90,17 +90,23 @@ const dr8 = [-1, -1, -1, 0, 1, 1, 1, 0];
 const dc8 = [-1, 0, 1, 1, 1, 0, -1, -1];
 const dr4 = [-1, 0, 1, 0];
 const dc4 = [0, 1, 0, -1];
-function floodFill(row, col, board, cellStates) {
-  cellStates[row][col] = 1;
+function floodFill(row, col, board, cellStates, newCellStates) {
+  if (newCellStates[row] === cellStates[row]) {
+    newCellStates[row] = [...cellStates[row]];
+  }
+  newCellStates[row][col] = 1;
   for (let i = 0; i < 8; ++i) {
     const r = row + dr8[i];
     const c = col + dc8[i];
-    if (r >= 0 && r < board.length && c >= 0 && c < board[r].length && cellStates[r][c] !== 1) {
+    if (r >= 0 && r < board.length && c >= 0 && c < board[r].length && newCellStates[r][c] !== 1) {
       if (board[r][c] === 0) {
-        floodFill(r, c, board, cellStates);
+        floodFill(r, c, board, cellStates, newCellStates);
       }
       else if (board[r][c] > 0) {
-        cellStates[r][c] = 1;
+        if (newCellStates[r] === cellStates[r]) {
+          newCellStates[r] = [...cellStates[r]];
+        }
+        newCellStates[r][c] = 1;
       }
     }
   }
@@ -112,8 +118,8 @@ function openCell(row, col, board, cellStates, setCellStates) {
   }
 
   if (board[row][col] === 0) {
-    const newCellStates = Array.from(cellStates, (v) => [...v]);
-    floodFill(row, col, board, newCellStates);
+    const newCellStates = [...cellStates];
+    floodFill(row, col, board, cellStates, newCellStates);
     setCellStates(newCellStates);
   }
   else {
