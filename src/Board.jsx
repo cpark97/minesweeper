@@ -106,14 +106,14 @@ export function Board(props) {
   for (let i = 0; i < props.rowCount; ++i) {
     const cells = [];
     for (let j = 0; j < props.columnCount; ++j) {
-      const hint = (cursor.cell !== null) &&
-                   ((cursor.cell[0] === i && cursor.cell[1] === j) || 
-                   (cursor.showCandidates && Math.abs(cursor.cell[0] - i) <= 1 && Math.abs(cursor.cell[1] - j) <= 1));
+      const active = (cursor.cell !== null) &&
+                      ((cursor.cell[0] === i && cursor.cell[1] === j) || 
+                      (cursor.showCandidates && Math.abs(cursor.cell[0] - i) <= 1 && Math.abs(cursor.cell[1] - j) <= 1));
       cells.push(
         <Cell key={j} 
           state={cellStates[i][j]} 
           value={board[i][j]} 
-          hint={hint}
+          active={active}
           cursor={cursor}
           setCursor={(showCandidates) => setCursor({cell: [i, j], showCandidates})}
           clearCursor={() => setCursor({cell: null, showCandidates: false})}

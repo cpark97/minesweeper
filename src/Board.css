@@ -22,6 +22,6 @@
     background-color: white;
 }
 
-.board__cell--hint {
+.board__cell--active {
     background-color: gray;
 }

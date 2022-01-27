@@ -96,7 +96,7 @@ function useCellMouseEvents(cursor, setCursor, cellValue, cellState, openCell, f
     onMouseDown: (e) => onCellMouseDown(e, cellValue, cellState, setCursor, flagCell),
     onMouseUp: (e) => onCellMouseUp(e, cursor, openCell, chordCell, clearCursor),
     onMouseEnter: (e) => onCellMouseEnter(e, cellValue, cellState, setCursor),
-    onMouseLeave: (e) => onCellMouseLeave(clearCursor),
+    onMouseLeave: () => onCellMouseLeave(clearCursor),
   };
 }
 
@@ -108,8 +108,8 @@ export function Cell(props) {
   if (props.state === 1) {
     className[1] = 'board__cell--open';
   }
-  else if (props.state === 0 && props.hint) {
-    className[1] = 'board__cell--hint';
+  else if (props.state === 0 && props.active) {
+    className[1] = 'board__cell--active';
   }
 
   let displayValue = null;
