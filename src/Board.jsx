@@ -114,7 +114,6 @@ export function Board(props) {
           state={cellStates[i][j]} 
           value={board[i][j]} 
           active={active}
-          cursor={cursor}
           setCursor={(showCandidates) => setCursor({cell: [i, j], showCandidates})}
           clearCursor={() => setCursor({cell: null, showCandidates: false})}
           openCell={() => openCell(i, j, board, cellStates, setCellStates)}

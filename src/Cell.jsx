@@ -49,7 +49,7 @@ function onCellMouseDown(e, cellValue, cellState, setCursor, flagCell) {
 
 // 오른쪽 안눌러진 상태에서 왼쪽 뗌 -> open
 // 양쪽 모두 누르고 한쪽 뗌 -> chord
-function onCellMouseUp(e, cursor, openCell, chordCell, clearCursor) {
+function onCellMouseUp(e, openCell, chordCell, clearCursor, active) {
   console.log(e.button, e.buttons);
   if (((e.buttons & 1) && e.button === 2) || ((e.buttons & 2) && e.button === 0)) {
     //chord
@@ -59,7 +59,7 @@ function onCellMouseUp(e, cursor, openCell, chordCell, clearCursor) {
     console.log('chord');
   }
   else if ((e.buttons & 2) === 0 && e.button === 0) {
-    if (cursor.cell !== null) {
+    if (active) {
       // open
       openCell();
       // 표시 해제
@@ -91,10 +91,10 @@ function onCellMouseLeave(clearCursor) {
   clearCursor();
 }
 
-function useCellMouseEvents(cursor, setCursor, cellValue, cellState, openCell, flagCell, chordCell, clearCursor) {
+function useCellMouseEvents(cellValue, cellState, openCell, flagCell, chordCell, setCursor, clearCursor, active) {
   return {
     onMouseDown: (e) => onCellMouseDown(e, cellValue, cellState, setCursor, flagCell),
-    onMouseUp: (e) => onCellMouseUp(e, cursor, openCell, chordCell, clearCursor),
+    onMouseUp: (e) => onCellMouseUp(e, openCell, chordCell, clearCursor, active),
     onMouseEnter: (e) => onCellMouseEnter(e, cellValue, cellState, setCursor),
     onMouseLeave: () => onCellMouseLeave(clearCursor),
   };
@@ -132,14 +132,14 @@ export function Cell(props) {
     onMouseEnter,
     onMouseLeave,
   } = useCellMouseEvents(
-    props.cursor,
-    props.setCursor,
     props.value,
     props.state,
     props.openCell,
     props.flagCell,
     props.chordCell,
-    props.clearCursor
+    props.setCursor,
+    props.clearCursor,
+    props.active,
   );
 
   return (
