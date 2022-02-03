@@ -3,126 +3,131 @@ import { useState } from 'react';
 import Cell from './Cell';
 import './Board.css';
 
-const dr8 = [-1, -1, -1, 0, 1, 1, 1, 0];
-const dc8 = [-1, 0, 1, 1, 1, 0, -1, -1];
-function floodFill(row, col, board, cellStates, newCellStates) {
-  if (newCellStates[row] === cellStates[row]) {
-    newCellStates[row] = [...cellStates[row]];
+// How to?
+// 1. candidate중심 좌표만 저장하고 셀 렌더링할 때 주변 8칸에 중심좌표 있으면 후보로 표시
+// 2. 2차원배열로 저장
+// 3. Set으로 저장? -> Object 값 비교가 안돼서 JSON이나 toString쓰면 더 느릴듯?
+// 일단 1번으로. 중심좌표와 row, col 차의 절대값이 1이하이면 표시.
+// closed 에 왼쪽 down하면 커서 표시
+// closed, 숫자에 양쪽 down하면 커서 + 후보 표시
+// Todo: 플래그랑 곂치는거 어떻게할지. (안곂치게 처리 or closed에는 후보 표시 X)
+//   -> 일단 closed에는 후보 표시 X
+// 
+// 왼쪽 -> 표시
+// 오른쪽 -> 깃발
+// 양쪽 -> chord
+function handleCellMouseDown(e, row, col, flagCell, setHint) {
+  // 양쪽 버튼 누르면 chord 힌트 표시
+  if ((e.buttons & 3) === 3) {
+    setHint({cell: [row, col], chord: true});
   }
-  newCellStates[row][col] = 1;
-  for (let i = 0; i < 8; ++i) {
-    const r = row + dr8[i];
-    const c = col + dc8[i];
-    if (r >= 0 && r < board.length && c >= 0 && c < board[r].length && newCellStates[r][c] !== 1) {
-      if (board[r][c] === 0) {
-        floodFill(r, c, board, cellStates, newCellStates);
-      }
-      else if (board[r][c] > 0) {
-        if (newCellStates[r] === cellStates[r]) {
-          newCellStates[r] = [...cellStates[r]];
-        }
-        newCellStates[r][c] = 1;
-      }
+  // 오른쪽 버튼 안누른 상태에서 왼쪽 버튼 누르면 힌트 표시
+  else if (e.button === 0) {
+    setHint({cell: [row, col], chord: false});
+  }
+
+  // 왼쪽 버튼 안누른 상태에서 오른쪽 버튼 누르면 깃발심기
+  if (e.button === 2 && (e.buttons & 1) === 0) {
+    flagCell(row, col);
+  }
+}
+
+// 오른쪽 안눌러진 상태에서 왼쪽 뗌 -> open
+// 양쪽 모두 누르고 한쪽 뗌 -> chord
+function handleCellMouseUp(e, row, col, openCell, chordCell, active, setHint) {
+  // 양 쪽 버튼 중 하나라도 떼면 힌트 해제
+  if (e.button === 0 || e.button === 2) {
+    setHint(null);
+  }
+
+  if (((e.buttons & 1) && e.button === 2) || ((e.buttons & 2) && e.button === 0)) {
+    //chord
+    chordCell(row, col);
+  }
+  else if ((e.buttons & 2) === 0 && e.button === 0) {
+    if (active) {
+      // open
+      openCell(row, col);
     }
   }
 }
 
-function openCell(row, col, board, cellStates, setCellStates) {
-  if (cellStates[row][col] !== 0) {
-    return;
+// 커서 들어왔는데 양쪽 눌러져있으면 chord, 왼쪽만 눌러져있으면 표시
+function handleCellMouseEnter(e, row, col, setHint) {
+  if ((e.buttons & 3) === 3) {
+    setHint({cell: [row, col], chord: true});
   }
-
-  if (board[row][col] === 0) {
-    const newCellStates = [...cellStates];
-    floodFill(row, col, board, cellStates, newCellStates);
-    setCellStates(newCellStates);
-  }
-  else {
-    const newCellStates = [...cellStates];
-    newCellStates[row] = [...cellStates[row]];
-    newCellStates[row][col] = 1;
-    setCellStates(newCellStates);
+  else if ((e.buttons & 1) === 1) {
+    setHint({cell: [row, col], chord: false});
   }
 }
 
-function flagCell(row, col, cellStates, setCellStates) {
-  if (cellStates[row][col] === 1) {
-    return;
-  }
-
-  const newBoard = [...cellStates];
-  newBoard[row] = [...cellStates[row]];
-  newBoard[row][col] = 2 - cellStates[row][col];
-  setCellStates(newBoard);
+// 커서 나가면 암튼 해제
+function handleCellMouseLeave(setHint) {
+  setHint(null);
 }
 
-function chordCell(row, col, board, cellStates, setCellStates) {
-  if (cellStates[row][col] !== 1 || board[row][col] <= 0) {
-    return;
-  }
+function useHint(cells, cellStates) {
+  const [hint, setHint] = useState(null);
 
-  let flagCnt = 0;
-  const closedCells = [];
-  for (let i = 0; i < 8; ++i) {
-    const r = row + dr8[i];
-    const c = col + dc8[i];
-    if (r < 0 || r >= cellStates.length || c < 0 || c >= cellStates[r].length) {
-      continue;
-    }
-    if (cellStates[r][c] === 2) {
-      ++flagCnt;
-    }
-    else if (cellStates[r][c] === 0) {
-      closedCells.push([r, c]);
-    }
-  }
+  if (hint !== null) {
+    const cellRow = hint.cell[0];
+    const cellCol = hint.cell[1];
+    const cellValue = cells[cellRow][cellCol];
+    const cellState = cellStates[cellRow][cellCol];
 
-  if (flagCnt != board[row][col]) {
-    return;
-  }
-
-  const newCellStates = [...cellStates];
-  for (const [r, c] of closedCells) {
-    if (board[r][c] === 0) {
-      floodFill(r, c, board, cellStates, newCellStates);
-    }
-    else if (board[r][c] > 0) {
-      if (newCellStates[r] === cellStates[r]) {
-        newCellStates[r] = [...cellStates[r]];
+    if (hint.chord) {
+      if (!(cellState === 1 && cellValue === 0)) {
+        return {
+          isActive: (row, col) => (
+            Math.abs(row - cellRow) <= 1 &&
+            Math.abs(col - cellCol) <= 1
+          ),
+          setHint,
+        };
       }
-      newCellStates[r][c] = 1;
     }
     else {
-      // Todo: game over
+      if (cellState === 0) {
+        return {
+          isActive: (row, col) => (
+            row == cellRow &&
+            col == cellCol
+          ),
+          setHint,
+        };
+      }
     }
   }
-  setCellStates(newCellStates);
+
+  return {
+    isActive: () => false,
+    setHint,
+  };
 }
 
 export function Board(props) {
-  const {board, cellStates, setCellStates, cursor, setCursor} = props;
+  const {cells, cellStates, openCell, flagCell, chordCell} = props;
+  const {isActive, setHint} = useHint(cells, cellStates);
 
   const rows = [];
-  for (let i = 0; i < props.rowCount; ++i) {
-    const cells = [];
-    for (let j = 0; j < props.columnCount; ++j) {
-      const active = (cursor.cell !== null) &&
-                      ((cursor.cell[0] === i && cursor.cell[1] === j) || 
-                      (cursor.showCandidates && Math.abs(cursor.cell[0] - i) <= 1 && Math.abs(cursor.cell[1] - j) <= 1));
-      cells.push(
-        <Cell key={j} 
-          state={cellStates[i][j]} 
-          value={board[i][j]} 
-          active={active}
-          setCursor={(showCandidates) => setCursor({cell: [i, j], showCandidates})}
-          clearCursor={() => setCursor({cell: null, showCandidates: false})}
-          openCell={() => openCell(i, j, board, cellStates, setCellStates)}
-          flagCell={() => flagCell(i, j, cellStates, setCellStates)}
-          chordCell={() => chordCell(i, j, board, cellStates, setCellStates)}
+  for (let i = 0; i < cells.length; ++i) {
+    const row = [];
+    for (let j = 0; j < cells[i].length; ++j) {
+      const active = isActive(i, j);
+      row.push(
+        <Cell key={j}
+          state={cellStates[i][j]}
+          value={cells[i][j]}
+          active={isActive(i, j)}
+          onMouseDown={(e) => handleCellMouseDown(e, i, j, flagCell, setHint)}
+          onMouseUp={(e) => handleCellMouseUp(e, i, j, openCell, chordCell, active, setHint)}
+          onMouseEnter={(e) => handleCellMouseEnter(e, i, j, setHint)}
+          onMouseLeave={(e) => handleCellMouseLeave(setHint)}
         />
       );
     }
-    rows.push(<tr key={i}>{cells}</tr>);
+    rows.push(<tr key={i}>{row}</tr>);
   }
   return (
     <table className='board'>
