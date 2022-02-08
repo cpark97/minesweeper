@@ -8,6 +8,7 @@ export function MineSweeper() {
   const {
     cells,
     cellStates,
+    gameState,
     openCell,
     flagCell,
     chordCell,
@@ -17,6 +18,7 @@ export function MineSweeper() {
   return (
     <div>
       <button onClick={resetMineField}>reset</button>
+      <span>{gameState}</span>
       <Board 
         cells={cells}
         cellStates={cellStates}

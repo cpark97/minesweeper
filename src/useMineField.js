@@ -59,7 +59,7 @@ function floodFill(row, col, cells, cellStates, newCellStates) {
   }
 }
 
-function openCell(row, col, cells, cellStates, setCellStates) {
+function openCell(row, col, cells, cellStates, setCellStates, setGameState) {
   if (cellStates[row][col] !== 0) {
     return;
   }
@@ -74,6 +74,10 @@ function openCell(row, col, cells, cellStates, setCellStates) {
     newCellStates[row] = [...cellStates[row]];
     newCellStates[row][col] = 1;
     setCellStates(newCellStates);
+
+    if (cells[row][col] === -1) {
+      setGameState('FAILED');
+    }
   }
 }
 
@@ -88,7 +92,7 @@ function flagCell(row, col, cellStates, setCellStates) {
   setCellStates(newBoard);
 }
 
-function chordCell(row, col, cells, cellStates, setCellStates) {
+function chordCell(row, col, cells, cellStates, setCellStates, setGameState) {
   if (cellStates[row][col] !== 1 || cells[row][col] <= 0) {
     return;
   }
@@ -118,14 +122,15 @@ function chordCell(row, col, cells, cellStates, setCellStates) {
     if (cells[r][c] === 0) {
       floodFill(r, c, cells, cellStates, newCellStates);
     }
-    else if (cells[r][c] > 0) {
+    else {
       if (newCellStates[r] === cellStates[r]) {
         newCellStates[r] = [...cellStates[r]];
       }
       newCellStates[r][c] = 1;
-    }
-    else {
-      // Todo: game over
+
+      if (cells[r][c] === -1) {
+        setGameState('FAILED');
+      }
     }
   }
   setCellStates(newCellStates);
@@ -142,6 +147,7 @@ export function useMineField(rowCount, columnCount, mineCount) {
       )
     )
   );
+  const [gameState, setGameState] = useState('NONE');
 
   const resetMineField = () => {
     setCells(generateRandomCells(rowCount, columnCount, mineCount));
@@ -154,15 +160,17 @@ export function useMineField(rowCount, columnCount, mineCount) {
         )
       )
     )
+    setGameState('NONE');
   };
 
-  const _openCell = (row, col) => openCell(row, col, cells, cellStates, setCellStates);
+  const _openCell = (row, col) => openCell(row, col, cells, cellStates, setCellStates, setGameState);
   const _flagCell = (row, col) => flagCell(row, col, cellStates, setCellStates);
-  const _chordCell = (row, col) => chordCell(row, col, cells, cellStates, setCellStates);
+  const _chordCell = (row, col) => chordCell(row, col, cells, cellStates, setCellStates, setGameState);
 
   return {
     cells,
     cellStates,
+    gameState,
     openCell: _openCell,
     flagCell: _flagCell,
     chordCell: _chordCell,
