@@ -183,17 +183,31 @@ export function useMineField(rowCount, columnCount, mineCount) {
     setGameState('NONE');
   };
 
-  const _openCell = (row, col) => openCell(row, col, cells, cellStates, setCellStates, setGameState);
-  const _flagCell = (row, col) => flagCell(row, col, cellStates, setCellStates);
-  const _chordCell = (row, col) => chordCell(row, col, cells, cellStates, setCellStates, setGameState);
+  if (gameState === 'NONE') {
+    const _openCell = (row, col) => openCell(row, col, cells, cellStates, setCellStates, setGameState);
+    const _flagCell = (row, col) => flagCell(row, col, cellStates, setCellStates);
+    const _chordCell = (row, col) => chordCell(row, col, cells, cellStates, setCellStates, setGameState);
 
-  return {
-    cells,
-    cellStates,
-    gameState,
-    openCell: _openCell,
-    flagCell: _flagCell,
-    chordCell: _chordCell,
-    resetMineField,
-  };
+    return {
+      cells,
+      cellStates,
+      gameState,
+      openCell: _openCell,
+      flagCell: _flagCell,
+      chordCell: _chordCell,
+      resetMineField,
+    };
+  }
+  else {
+    const doNothing = () => {};
+    return {
+      cells,
+      cellStates,
+      gameState,
+      openCell: doNothing,
+      flagCell: doNothing,
+      chordCell: doNothing,
+      resetMineField,
+    };
+  }
 }
