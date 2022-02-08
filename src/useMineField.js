@@ -59,25 +59,41 @@ function floodFill(row, col, cells, cellStates, newCellStates) {
   }
 }
 
+function checkGameSucceeded(cells, cellStates) {
+  for (let r = 0; r < cells.length; ++r) {
+    for (let c = 0; c < cells[r].length; ++c) {
+      if (cells[r][c] !== -1 && cellStates[r][c] !== 1) {
+        console.log(r, c);
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 function openCell(row, col, cells, cellStates, setCellStates, setGameState) {
   if (cellStates[row][col] !== 0) {
     return;
   }
 
+  const newCellStates = [...cellStates];
   if (cells[row][col] === 0) {
-    const newCellStates = [...cellStates];
     floodFill(row, col, cells, cellStates, newCellStates);
     setCellStates(newCellStates);
   }
   else {
-    const newCellStates = [...cellStates];
     newCellStates[row] = [...cellStates[row]];
     newCellStates[row][col] = 1;
     setCellStates(newCellStates);
 
     if (cells[row][col] === -1) {
       setGameState('FAILED');
+      return;
     }
+  }
+
+  if (checkGameSucceeded(cells, newCellStates)) {
+    setGameState('SUCCEEDED');
   }
 }
 
@@ -134,6 +150,10 @@ function chordCell(row, col, cells, cellStates, setCellStates, setGameState) {
     }
   }
   setCellStates(newCellStates);
+
+  if (checkGameSucceeded(cells, newCellStates)) {
+    setGameState('SUCCEEDED');
+  }
 }
 
 export function useMineField(rowCount, columnCount, mineCount) {
