@@ -157,6 +157,7 @@ function chordCell(row, col, cells, cellStates, setCellStates, setGameState) {
 }
 
 export function useMineField(rowCount, columnCount, mineCount) {
+  const [boardConfig, setBoardConfig] = useState({rowCount, columnCount, mineCount});
   const [cells, setCells] = useState(() => generateRandomCells(rowCount, columnCount, mineCount));
   const [cellStates, setCellStates] = useState(
     () => Array.from(
@@ -170,6 +171,22 @@ export function useMineField(rowCount, columnCount, mineCount) {
   const [gameState, setGameState] = useState('NONE');
 
   const resetMineField = () => {
+    const {rowCount, columnCount, mineCount} = boardConfig;
+    setCells(generateRandomCells(rowCount, columnCount, mineCount));
+    setCellStates(
+      Array.from(
+        {length: rowCount},
+        () => Array.from(
+          {length: columnCount},
+          () => 0
+        )
+      )
+    )
+    setGameState('NONE');
+  };
+
+  const _setBoardConfig = (rowCount, columnCount, mineCount) => {
+    setBoardConfig({rowCount, columnCount, mineCount});
     setCells(generateRandomCells(rowCount, columnCount, mineCount));
     setCellStates(
       Array.from(
@@ -192,10 +209,14 @@ export function useMineField(rowCount, columnCount, mineCount) {
       cells,
       cellStates,
       gameState,
+      rowCount: boardConfig.rowCount,
+      columnCount: boardConfig.columnCount,
+      mineCount: boardConfig.mineCount,
       openCell: _openCell,
       flagCell: _flagCell,
       chordCell: _chordCell,
       resetMineField,
+      setBoardConfig: _setBoardConfig,
     };
   }
   else {
@@ -204,10 +225,14 @@ export function useMineField(rowCount, columnCount, mineCount) {
       cells,
       cellStates,
       gameState,
+      rowCount: boardConfig.rowCount,
+      columnCount: boardConfig.columnCount,
+      mineCount: boardConfig.mineCount,
       openCell: doNothing,
       flagCell: doNothing,
       chordCell: doNothing,
       resetMineField,
+      setBoardConfig: _setBoardConfig,
     };
   }
 }
