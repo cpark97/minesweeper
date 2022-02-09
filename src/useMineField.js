@@ -5,7 +5,7 @@ const dc8 = [-1, 0, 1, 1, 1, 0, -1, -1];
 
 function generateRandomCells(rowCount, columnCount, mineCount) {
   const mines = [];
-  while (mines.length < mineCount - 1) {
+  while (mines.length < mineCount) {
     const row = Math.floor(Math.random() * rowCount);
     const col = Math.floor(Math.random() * columnCount);
     if (mines.findIndex(([r, c]) => (r === row && c === col)) === -1) {
