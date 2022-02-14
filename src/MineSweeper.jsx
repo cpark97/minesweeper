@@ -7,6 +7,7 @@ import Board from './Board';
 export function MineSweeper() {
   const {
     mineField,
+    state,
     openCell,
     flagCell,
     chordCell,
@@ -31,7 +32,7 @@ export function MineSweeper() {
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
       <button onClick={() => resetMineField(mineField.rowCount, mineField.columnCount, mineField.mineCount)}>reset</button>
-      <span>{mineField.state}</span>
+      <span>{state}</span>
       <div>
         <span>{sw.elapsed / 1000}</span>
         <button onClick={() => sw.resume()}>start</button>

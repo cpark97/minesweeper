@@ -44,7 +44,6 @@ export function newMineField(rowCount, columnCount, mineCount) {
     mineCount,
     cells,
     cellStates,
-    state: 'NONE',
     openedCount: 0,
     isMineOpened: false,
   };
@@ -109,13 +108,6 @@ function openCells(mineField, cellsToOpen) {
     openedCount: newOpenedCount,
     isMineOpened: newIsMineOpened,
   };
-
-  if (newIsMineOpened) {
-    newMineField.state = 'FAILED';
-  }
-  else if (newOpenedCount === rowCount * columnCount - mineCount) {
-    newMineField.state = 'SUCCEEDED';
-  }
 
   return newMineField;
 }
