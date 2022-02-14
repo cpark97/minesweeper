@@ -35,57 +35,6 @@ function generateRandomCells(rowCount, columnCount, mineCount) {
   return cells;
 }
 
-function findConnectedComponents(cells) {
-  const components = [];
-  const componentMap = Array.from(cells, (v) => Array.from(v, () => -1));
-
-  const dir = [[-1, -1], [-1, 0], [-1, 1], [0, -1]];
-  for (let row = 0; row < cells.length; ++row) {
-    for (let col = 0; col < cells[row].length; ++col) {
-      if (cells[row][col] !== 0) {
-        continue;
-      }
-      if (componentMap[row][col] !== -1) {
-        continue;
-      }
-
-      const componentID = components.length;
-      const component = [[row, col]];
-      componentMap[row][col] = componentID;
-      for (let i = 0; i < component.length; ++i) {
-        const [r, c] = component[i];
-        if (cells[r][c] !== 0) {
-          continue;
-        }
-
-        for (let j = 0; j < 8; ++j) {
-          const tr = r + dr8[j];
-          const tc = c + dc8[j];
-          if (tr < 0 || tr >= cells.length || tc < 0 || tc >= cells[tr].length) {
-            continue;
-          }
-          if (cells[tr][tc] === 0) {
-            if (componentMap[tr][tc] === -1) {
-              component.push([tr, tc]);
-              componentMap[tr][tc] = componentID;
-            }
-          }
-          else if (cells[tr][tc] > 0) {
-            if (componentMap[tr][tc] !== componentID) {
-              component.push([tr, tc]);
-              componentMap[tr][tc] = componentID;
-            }
-          }
-        }
-      }
-
-      components.push(component);
-    }
-  }
-
-  return {components, componentMap};
-}
-
 export function newMineField(rowCount, columnCount, mineCount) {
   const cells = generateRandomCells(rowCount, columnCount, mineCount);
   const cellStates = Array.from(cells, (row) => Array.from(row, () => 0));
@@ -95,72 +44,80 @@ export function newMineField(rowCount, columnCount, mineCount) {
     mineCount,
     cells,
     cellStates,
-    ...findConnectedComponents(cells),
     state: 'NONE',
+    openedCount: 0,
+    isMineOpened: false,
   };
 }
 
-function checkGameSucceeded(cells, cellStates) {
-  for (let r = 0; r < cells.length; ++r) {
-    for (let c = 0; c < cells[r].length; ++c) {
-      if (cells[r][c] !== -1 && cellStates[r][c] !== 1) {
-        console.log(r, c);
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
+// flood fill 될 곳에 깃발이 있는 경우 그 칸은 열리지 않고 숫자칸과 마찬가지로 취급하여 flood fill이 막힌다 (arbiter)
 function openCells(mineField, cellsToOpen) {
-  const {cells, cellStates, components, componentMap} = mineField;
+  const {rowCount, columnCount, mineCount, cells, cellStates, openedCount} = mineField;
   const newCellStates = [...cellStates];
-  let isCellStatesModified = false;
-  let isMineOpened = false;
+  let newIsMineOpened = false;
+  let newOpenedCount = openedCount;
+
   for (const [row, col] of cellsToOpen) {
     if (newCellStates[row][col] !== 0) {
       continue;
     }
 
-    if (cells[row][col] === 0) {
-      const component = components[componentMap[row][col]];
-      for (const [r, c] of component) {
-        if (cellStates[r][c] === 1) {
-          continue;
-        }
-        if (newCellStates[r] === cellStates[r]) {
-          newCellStates[r] = [...cellStates[r]];
-        }
-        newCellStates[r][c] = 1;
-        isCellStatesModified = true;
-      }
+    if (newCellStates[row] === cellStates[row]) {
+      newCellStates[row] = [...cellStates[row]];
     }
-    else {
-      if (newCellStates[row] === cellStates[row]) {
-        newCellStates[row] = [...cellStates[row]];
-      }
-      newCellStates[row][col] = 1;
-      isCellStatesModified = true;
+    newCellStates[row][col] = 1;
+    newOpenedCount += 1;
 
-      if (cells[row][col] === -1) {
-        isMineOpened = true;
+    if (cells[row][col] !== 0) {
+      newIsMineOpened = newIsMineOpened || (cells[row][col] === -1);
+      continue;
+    }
+
+    // Flood Fill
+    const queue = [[row, col]];
+    let front = 0;
+    while (front < queue.length) {
+      const [r, c] = queue[front];
+      front += 1;
+      for (let i = 0; i < 8; ++i) {
+        const tr = r + dr8[i];
+        const tc = c + dc8[i];
+
+        if (tr < 0 || tr >= rowCount || tc < 0 || tc >= columnCount) { continue; }
+        if (newCellStates[tr][tc] !== 0) { continue; }
+
+        if (newCellStates[tr] === cellStates[tr]) {
+          newCellStates[tr] = [...cellStates[tr]];
+        }
+        newCellStates[tr][tc] = 1;
+        newOpenedCount += 1;
+        
+        if (cells[tr][tc] === 0) {
+          queue.push([tr, tc]);
+        }
       }
     }
   }
 
-  if (!isCellStatesModified) {
+  if (newOpenedCount === openedCount) {
     return mineField;
   }
 
-  if (isMineOpened) {
-    return {...mineField, cellStates: newCellStates, state: 'FAILED'};
+  const newMineField = {
+    ...mineField,
+    cellStates: newCellStates,
+    openedCount: newOpenedCount,
+    isMineOpened: newIsMineOpened,
+  };
+
+  if (newIsMineOpened) {
+    newMineField.state = 'FAILED';
+  }
+  else if (newOpenedCount === rowCount * columnCount - mineCount) {
+    newMineField.state = 'SUCCEEDED';
   }
 
-  if (checkGameSucceeded(cells, newCellStates)) {
-    return {...mineField, cellStates: newCellStates, state: 'SUCCEED'};
-  }
-
-  return {...mineField, cellStates: newCellStates};
+  return newMineField;
 }
 
 export function openCell(mineField, row, col) {
@@ -168,7 +125,7 @@ export function openCell(mineField, row, col) {
 }
 
 export function chordCell(mineField, row, col) {
-  const {cells, cellStates, components, componentMap} = mineField;
+  const {cells, cellStates} = mineField;
   if (cellStates[row][col] !== 1 || cells[row][col] <= 0) {
     return mineField;
   }
