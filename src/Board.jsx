@@ -130,12 +130,12 @@ export function Board(props) {
     rows.push(<tr key={i}>{row}</tr>);
   }
   return (
-    <table className='board'>
+    <table className='board' onContextMenu={(e) => e.preventDefault()}>
       <tbody>
         {rows}
       </tbody>
     </table>
-  )
+  );
 }
 
 export default Board;
