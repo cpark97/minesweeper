@@ -5,6 +5,20 @@ import { useStopWatch } from './useStopWatch';
 import Board from './Board';
 
 export function MineSweeper() {
+  const sw = useStopWatch();
+  const handleChange = (newMineField) => {
+    if (sw.state === 'RESET' && newMineField.openedCount > 0) {
+      sw.resume();
+    }
+    else if (
+      sw.state === 'RESUMED' && 
+      (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount ||
+      newMineField.isMineOpened)
+    ) {
+      sw.pause();
+    }
+  };
+
   const {
     mineField,
     state,
@@ -12,9 +26,12 @@ export function MineSweeper() {
     flagCell,
     chordCell,
     resetMineField,
-  } = useMineField(10, 10, 10);
+  } = useMineField(10, 10, 10, handleChange);
 
-  const sw = useStopWatch();
+  const reset = () => {
+    resetMineField(mineField.rowCount, mineField.columnCount, mineField.mineCount);
+    sw.reset();
+  }
 
   const rowCountInput = useRef(null);
   const columnCountInput = useRef(null);
@@ -31,13 +48,13 @@ export function MineSweeper() {
         <input type="number" name="mineCount" id="mine-count" min={1} max={mineField.rowCount * mineField.columnCount - 1} defaultValue={mineField.mineCount} ref={mineCountInput}/>
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
-      <button onClick={() => resetMineField(mineField.rowCount, mineField.columnCount, mineField.mineCount)}>reset</button>
+      <button onClick={reset}>reset</button>
       <span>{state}</span>
       <div>
         <span>{sw.elapsed / 1000}</span>
-        <button onClick={() => sw.resume()}>start</button>
-        <button onClick={() => sw.pause()}>pause</button>
-        <button onClick={() => sw.reset()}>reset</button>
+        <button onClick={() => sw.resume()} disabled>start</button>
+        <button onClick={() => sw.pause()} disabled>pause</button>
+        <button onClick={() => sw.reset()} disabled>reset</button>
         <span>{sw.state}</span>
       </div>
       <Board 
