@@ -48,6 +48,7 @@ export function MineSweeper() {
         <input type="number" name="mineCount" id="mine-count" min={1} max={mineField.rowCount * mineField.columnCount - 1} defaultValue={mineField.mineCount} ref={mineCountInput}/>
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
+      <span>{mineField.mineCount - mineField.flagCount}</span>
       <button onClick={reset}>reset</button>
       <span>{state}</span>
       <div>

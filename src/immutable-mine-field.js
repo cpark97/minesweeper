@@ -45,6 +45,7 @@ export function newMineField(rowCount, columnCount, mineCount) {
     cells,
     cellStates,
     openedCount: 0,
+    flagCount: 0,
     isMineOpened: false,
   };
 }
@@ -146,7 +147,7 @@ export function chordCell(mineField, row, col) {
 }
 
 export function toggleCellFlag(mineField, row, col) {
-  const {cellStates} = mineField;
+  const {cellStates, flagCount} = mineField;
   if (cellStates[row][col] === 1) {
     return mineField;
   }
@@ -154,5 +155,6 @@ export function toggleCellFlag(mineField, row, col) {
   const newCellStates = [...cellStates];
   newCellStates[row] = [...cellStates[row]];
   newCellStates[row][col] = 2 - cellStates[row][col];
-  return {...mineField, cellStates: newCellStates};
+
+  return {...mineField, cellStates: newCellStates, flagCount: flagCount + newCellStates[row][col] - 1};
 }
