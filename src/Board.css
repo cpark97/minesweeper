@@ -12,6 +12,15 @@
     height: 25px;
     border: black solid 1px;
     user-select: none;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.board__cell svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    margin: auto;
 }
 
 .board__cell--close {
