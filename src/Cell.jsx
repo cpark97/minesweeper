@@ -57,6 +57,7 @@ export function Cell(props) {
       displayValue = <Mine />;
     } else {
       displayValue = props.value;
+      className.push(`board__cell--${props.value}`);
     }
   }
   else if (props.state === 2) {
