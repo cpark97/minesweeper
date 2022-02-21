@@ -3,14 +3,17 @@
 }
 
 .board {
-    border-spacing: 2px;
-    background-color: gray;
+    border-spacing: 0;
+    border-collapse: separate;
+    border-left: #A9A9A9 solid 4px;
+    border-top: #A9A9A9 solid 4px;
+    border-right: white solid 4px;
+    border-bottom: white solid 4px;
 }
 
 .board__cell {
     width: 25px;
     height: 25px;
-    border: black solid 1px;
     padding: 0;
     user-select: none;
     font-size: 16px;
@@ -59,13 +62,21 @@
 }
 
 .board__cell--close {
-    background-color: steelblue;
+    border-left: white solid 3px;
+    border-top: white solid 3px;
+    border-right: gray solid 3px;
+    border-bottom: gray solid 3px;
+    background-color: #D3D3D3;
 }
 
 .board__cell--open {
-    background-color: white;
+    border-left: gray solid 1px;
+    border-top: gray solid 1px;
+    background-color: #D3D3D3;
 }
 
 .board__cell--active {
-    background-color: gray;
+    border-left: gray solid 1px;
+    border-top: gray solid 1px;
+    background-color: #D3D3D3;
 }
