@@ -1,0 +1,75 @@
+* {
+    box-sizing: border-box;
+}
+
+.seven-segment {
+    width: 15px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+}
+
+@mixin segments--on($segments...) {
+    @each $seg in $segments {
+        .seven-segment__#{$seg} {
+            fill: #FF0000;
+        }
+    }
+}
+
+.seven-segment--0 {
+    @include segments--on(a, b, c, d, e, f);
+}
+
+.seven-segment--1 {
+    @include segments--on(b, c);
+}
+
+.seven-segment--2 {
+    @include segments--on(a, b, d, e, g);
+}
+
+.seven-segment--3 {
+    @include segments--on(a, b, c, d, g);
+}
+
+.seven-segment--4 {
+    @include segments--on(b, c, f, g);
+}
+
+.seven-segment--5 {
+    @include segments--on(a, c, d, f, g);
+}
+
+.seven-segment--6 {
+    @include segments--on(a, c, d, e, f, g);
+}
+
+.seven-segment--7 {
+    @include segments--on(a, b, c);
+}
+
+.seven-segment--8 {
+    @include segments--on(a, b, c, d, e, f, g);
+}
+
+.seven-segment--9 {
+    @include segments--on(a, b, c, d, f, g);
+}
+
+.seven-segment--dash {
+    @include segments--on(g);
+}
+
+.seven-segments {
+    .seven-segment {
+        margin: 2px;
+    }
+
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    height: 34px;
+    background-color: black;
+}

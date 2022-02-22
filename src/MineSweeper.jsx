@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { useMineField } from './useMineField';
 import { useStopWatch } from './useStopWatch';
 import Board from './Board';
+import { SevenSegments } from './SevenSegments';
 
 export function MineSweeper() {
   const sw = useStopWatch();
@@ -48,16 +49,10 @@ export function MineSweeper() {
         <input type="number" name="mineCount" id="mine-count" min={1} max={mineField.rowCount * mineField.columnCount - 1} defaultValue={mineField.mineCount} ref={mineCountInput}/>
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
-      <span>{mineField.mineCount - mineField.flagCount}</span>
+      <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
       <button onClick={reset}>reset</button>
+      <SevenSegments numDigits={3} value={Math.floor(sw.elapsed / 1000)}/>
       <span>{state}</span>
-      <div>
-        <span>{sw.elapsed / 1000}</span>
-        <button onClick={() => sw.resume()} disabled>start</button>
-        <button onClick={() => sw.pause()} disabled>pause</button>
-        <button onClick={() => sw.reset()} disabled>reset</button>
-        <span>{sw.state}</span>
-      </div>
       <Board 
         cells={mineField.cells}
         cellStates={mineField.cellStates}
