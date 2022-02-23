@@ -6,6 +6,8 @@ import Board from './Board';
 import { SevenSegments } from './SevenSegments';
 import { ResetButton } from './ResetButton';
 
+import './MineSweeper.css';
+
 export function MineSweeper() {
   const sw = useStopWatch();
   const [resetButtonFace, setResetButtonFace] = useState('normal');
@@ -53,17 +55,20 @@ export function MineSweeper() {
         <input type="number" name="mineCount" id="mine-count" min={1} max={mineField.rowCount * mineField.columnCount - 1} defaultValue={mineField.mineCount} ref={mineCountInput}/>
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
-      <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
-      <ResetButton onClick={reset} face={resetButtonFace}></ResetButton>
-      <SevenSegments numDigits={3} value={Math.floor(sw.elapsed / 1000)}/>
-      <span>{state}</span>
-      <Board 
-        cells={mineField.cells}
-        cellStates={mineField.cellStates}
-        openCell={openCell}
-        flagCell={flagCell}
-        chordCell={chordCell}
-      />
+      <div className="mine-sweeper">
+        <div className="mine-sweeper__header">
+          <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
+          <ResetButton onClick={reset} face={resetButtonFace}></ResetButton>
+          <SevenSegments numDigits={3} value={Math.floor(sw.elapsed / 1000)}/>
+        </div>
+        <Board 
+          cells={mineField.cells}
+          cellStates={mineField.cellStates}
+          openCell={openCell}
+          flagCell={flagCell}
+          chordCell={chordCell}
+        />
+      </div>
     </div>
   );
 }
