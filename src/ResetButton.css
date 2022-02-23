@@ -1,12 +1,41 @@
+* {
+    box-sizing: border-box;
+}
+
 .reset-button {
     margin: 0;
     padding: 0;
     vertical-align: middle;
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-left: white solid 3px;
+    border-top: white solid 3px;
+    border-right: gray solid 3px;
+    border-bottom: gray solid 3px;
+    background-color: #D3D3D3;
+}
+
+.reset-button:hover {
+    background-color: #D3D3D3;
+}
+
+.reset-button:active {
+    border-left: #A9A9A9 solid 3px;
+    border-top: #A9A9A9 solid 3px;
+    border-right: white solid 1px;
+    border-bottom: white solid 1px;
 }
 
 .reset-button > svg {
     display: block;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     margin: auto;
+}
+
+.reset-button:active > svg {
+    width: 19px;
+    height: 19px;
 }
