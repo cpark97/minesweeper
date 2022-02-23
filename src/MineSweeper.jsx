@@ -1,22 +1,25 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { useMineField } from './useMineField';
 import { useStopWatch } from './useStopWatch';
 import Board from './Board';
 import { SevenSegments } from './SevenSegments';
+import { ResetButton } from './ResetButton';
 
 export function MineSweeper() {
   const sw = useStopWatch();
+  const [resetButtonFace, setResetButtonFace] = useState('normal');
   const handleChange = (newMineField) => {
     if (sw.state === 'RESET' && newMineField.openedCount > 0) {
       sw.resume();
     }
-    else if (
-      sw.state === 'RESUMED' && 
-      (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount ||
-      newMineField.isMineOpened)
-    ) {
+    else if (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount) {
       sw.pause();
+      setResetButtonFace('succeeded');
+    }
+    else if (newMineField.isMineOpened) {
+      sw.pause();
+      setResetButtonFace('failed');
     }
   };
 
@@ -32,6 +35,7 @@ export function MineSweeper() {
   const reset = () => {
     resetMineField(mineField.rowCount, mineField.columnCount, mineField.mineCount);
     sw.reset();
+    setResetButtonFace('normal');
   }
 
   const rowCountInput = useRef(null);
@@ -50,7 +54,7 @@ export function MineSweeper() {
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
       <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
-      <button onClick={reset}>reset</button>
+      <ResetButton onClick={reset} face={resetButtonFace}></ResetButton>
       <SevenSegments numDigits={3} value={Math.floor(sw.elapsed / 1000)}/>
       <span>{state}</span>
       <Board 
