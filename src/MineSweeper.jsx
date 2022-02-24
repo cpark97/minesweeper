@@ -47,6 +47,33 @@ function CustomLevelModal({show, defaultRowCount, defaultColumnCount, defaultMin
   );
 }
 
+function LevelMenu({current, onClick}) {
+  const handleClick = (value) => {
+    return () => {
+      if (value !== current) {
+        onClick(value);
+      }
+    };
+  };
+
+  return (
+    <ul>
+      <li onClick={handleClick('beginner')}>
+        <input type="radio" name="level" disabled checked={current === 'beginner'}/>beginner
+      </li>
+      <li onClick={handleClick('intermediate')}>
+        <input type="radio" name="level" disabled checked={current === 'intermediate'}/>intermediate
+      </li>
+      <li onClick={handleClick('expert')}>
+        <input type="radio" name="level" disabled checked={current === 'expert'}/>expert
+      </li>
+      <li onClick={handleClick('custom')}>
+        <input type="radio" name="level" disabled checked={current === 'custom'}/>custom
+      </li>
+    </ul>
+  );
+}
+
 export function MineSweeper() {
   const sw = useStopWatch();
   const [resetButtonFace, setResetButtonFace] = useState('normal');
@@ -88,14 +115,28 @@ export function MineSweeper() {
     }
   };
 
+  const [level, setLevel] = useState('beginner');
   const [customLevelModalShow, setCustomLevelModalShow] = useState(false);
-  const handleCustomLevelClick = () => {
-    setCustomLevelModalShow(true);
+  const handleLevelMenuClick = (value) => {
+    if (value !== level) {
+      if (value === 'custom') {
+        setCustomLevelModalShow(true);
+      }
+      else {
+        setLevel(value);
+        const level = levels[value];
+        resetMineField(level.rowCount, level.columnCount, level.mineCount);
+        sw.reset();
+        setResetButtonFace('normal');
+      }
+    }
   };
+
   const handleCustomLevelModalCancel = () => {
     setCustomLevelModalShow(false);
   }
   const handleCustomLevelModalOk = (level) => {
+    setLevel('custom');
     setCustomLevelModalShow(false);
     resetMineField(level.rowCount, level.columnCount, level.mineCount);
     sw.reset();
@@ -112,24 +153,7 @@ export function MineSweeper() {
         onCancel={handleCustomLevelModalCancel}
         onOk={handleCustomLevelModalOk}
       />
-      <ul>
-        <li>
-          <input type="radio" name="board" id="level__beginner" value="beginner" onChange={handleLevelChange} defaultChecked/>
-          <label htmlFor="level__beginner">beginner</label>
-        </li>
-        <li>
-          <input type="radio" name="board" id="level__intermediate" onChange={handleLevelChange} value="intermediate"/>
-          <label htmlFor="level__intermediate">intermediate</label>
-        </li>
-        <li>
-          <input type="radio" name="board" id="level__expert" onChange={handleLevelChange} value="expert"/>
-          <label htmlFor="level__expert">expert</label>
-        </li>
-        <li>
-          <input type="radio" name="board" id="level__custom" onClick={handleCustomLevelClick} value="custom"/>
-          <label htmlFor="level__custom">custom</label>
-        </li>
-      </ul>
+      <LevelMenu current={level} onClick={handleLevelMenuClick}/>
       <div className="mine-sweeper">
         <div className="mine-sweeper__header">
           <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
