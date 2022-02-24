@@ -8,6 +8,12 @@ import { ResetButton } from './ResetButton';
 
 import './MineSweeper.css';
 
+const levels = Object.freeze({
+  beginner: {rowCount: 8, columnCount: 8, mineCount: 10},
+  intermediate: {rowCount: 16, columnCount: 16, mineCount: 40},
+  expert: {rowCount: 16, columnCount: 30, mineCount: 99},
+});
+
 export function MineSweeper() {
   const sw = useStopWatch();
   const [resetButtonFace, setResetButtonFace] = useState('normal');
@@ -32,13 +38,22 @@ export function MineSweeper() {
     flagCell,
     chordCell,
     resetMineField,
-  } = useMineField(10, 10, 10, handleChange);
+  } = useMineField(8, 8, 10, handleChange);
 
   const reset = () => {
     resetMineField(mineField.rowCount, mineField.columnCount, mineField.mineCount);
     sw.reset();
     setResetButtonFace('normal');
-  }
+  };
+
+  const handleLevelChange = (e) => {
+    if (e.target.checked) {
+      const level = levels[e.target.value];
+      resetMineField(level.rowCount, level.columnCount, level.mineCount);
+      sw.reset();
+      setResetButtonFace('normal');
+    }
+  };
 
   const rowCountInput = useRef(null);
   const columnCountInput = useRef(null);
@@ -55,6 +70,20 @@ export function MineSweeper() {
         <input type="number" name="mineCount" id="mine-count" min={1} max={mineField.rowCount * mineField.columnCount - 1} defaultValue={mineField.mineCount} ref={mineCountInput}/>
         <button onClick={() => resetMineField(rowCountInput.current.value, columnCountInput.current.value, mineCountInput.current.value)}>set</button>
       </div>
+      <ul>
+        <li>
+          <input type="radio" name="board" id="level__beginner" value="beginner" onChange={handleLevelChange} defaultChecked/>
+          <label htmlFor="level__beginner">beginner</label>
+        </li>
+        <li>
+          <input type="radio" name="board" id="level__intermediate" onChange={handleLevelChange} value="intermediate"/>
+          <label htmlFor="level__intermediate">intermediate</label>
+        </li>
+        <li>
+          <input type="radio" name="board" id="level__expert" onChange={handleLevelChange} value="expert"/>
+          <label htmlFor="level__expert">expert</label>
+        </li>
+      </ul>
       <div className="mine-sweeper">
         <div className="mine-sweeper__header">
           <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
