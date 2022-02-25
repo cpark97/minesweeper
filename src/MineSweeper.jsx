@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 import { useMineField } from './useMineField';
-import { useStopWatch } from './useStopWatch';
+import { useRoughStopwatch } from './useStopWatch';
 import Board from './Board';
 import { SevenSegments } from './SevenSegments';
 import { ResetButton } from './ResetButton';
@@ -111,7 +111,7 @@ function LevelMenu({current, onClick}) {
 }
 
 export function MineSweeper() {
-  const sw = useStopWatch();
+  const sw = useRoughStopwatch();
   const [resetButtonFace, setResetButtonFace] = useState('normal');
   const handleChange = (newMineField) => {
     if (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount) {
@@ -183,7 +183,7 @@ export function MineSweeper() {
         <div className="mine-sweeper__header">
           <SevenSegments numDigits={3} value={mineField.mineCount - mineField.flagCount}/>
           <ResetButton onClick={reset} face={resetButtonFace}></ResetButton>
-          <SevenSegments numDigits={3} value={Math.floor(sw.elapsed / 1000)}/>
+          <SevenSegments numDigits={3} value={sw.elapsedSeconds}/>
         </div>
         <Board 
           cells={mineField.cells}
