@@ -114,16 +114,16 @@ export function MineSweeper() {
   const sw = useStopWatch();
   const [resetButtonFace, setResetButtonFace] = useState('normal');
   const handleChange = (newMineField) => {
-    if (sw.state === 'RESET' && newMineField.openedCount > 0) {
-      sw.resume();
-    }
-    else if (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount) {
+    if (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount) {
       sw.pause();
       setResetButtonFace('succeeded');
     }
     else if (newMineField.isMineOpened) {
       sw.pause();
       setResetButtonFace('failed');
+    }
+    else if (sw.state === 'RESET' && newMineField.openedCount > 0) {
+      sw.resume();
     }
   };
 
