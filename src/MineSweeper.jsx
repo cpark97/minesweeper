@@ -47,6 +47,39 @@ function CustomLevelModal({show, defaultRowCount, defaultColumnCount, defaultMin
   );
 }
 
+function Dropdown(props) {
+  const [show, setShow] = useState(false);
+  const handleHeaderClick = () => {
+    setShow(!show);
+  }
+  const handleMenuClick = (e) => {
+    if (e.target.parentElement !== e.currentTarget) {
+      return;
+    }
+    if (!e.target.classList.contains('dropdown-item')) {
+      return;
+    }
+
+    setShow(false);
+  }
+
+  const className = ['dropdown'];
+  if (show) {
+    className.push('dropdown--open');
+  }
+
+  return (
+    <div className={className.join(' ')}>
+      <span className="dropdown__header" onClick={handleHeaderClick}>{props.header}</span>
+      <div className="dropdown__menu-container">
+        <ul className="dropdown__menu" onClick={handleMenuClick}>
+          {props.children}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function LevelMenu({current, onClick}) {
   const handleClick = (value) => {
     return () => {
@@ -57,20 +90,20 @@ function LevelMenu({current, onClick}) {
   };
 
   return (
-    <ul>
-      <li onClick={handleClick('beginner')}>
+    <Dropdown header="Game ▼">
+      <li className="dropdown-item" onClick={handleClick('beginner')}>
         <input type="radio" name="level" disabled checked={current === 'beginner'}/>beginner
       </li>
-      <li onClick={handleClick('intermediate')}>
+      <li className="dropdown-item" onClick={handleClick('intermediate')}>
         <input type="radio" name="level" disabled checked={current === 'intermediate'}/>intermediate
       </li>
-      <li onClick={handleClick('expert')}>
+      <li className="dropdown-item" onClick={handleClick('expert')}>
         <input type="radio" name="level" disabled checked={current === 'expert'}/>expert
       </li>
-      <li onClick={handleClick('custom')}>
+      <li className="dropdown-item" onClick={handleClick('custom')}>
         <input type="radio" name="level" disabled checked={current === 'custom'}/>custom
       </li>
-    </ul>
+    </Dropdown>
   );
 }
 
