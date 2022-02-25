@@ -31,17 +31,22 @@ function CustomLevelModal({show, defaultRowCount, defaultColumnCount, defaultMin
   return (
     <Modal show={show}>
       <div className="custom-level-modal">
-        <label htmlFor="row-count">rows</label>
-        <input type="number" name="rowCount" id="row-count" min={1} defaultValue={defaultRowCount} ref={rowCountInput} />
-        <br/>
-        <label htmlFor="column-count">cols</label>
-        <input type="number" name="columnCount" id="column-count" min={1} defaultValue={defaultColumnCount} ref={columnCountInput} />
-        <br/>
-        <label htmlFor="mine-count">mines</label>
-        <input type="number" name="mineCount" id="mine-count" min={1} defaultValue={defaultMineCount} ref={mineCountInput}/>
-        <br/>
-        <button onClick={onCancel}>cancel</button>
-        <button onClick={handleOk}>ok</button>
+        <div>
+          <label htmlFor="column-count">Width</label>
+          <input type="number" name="columnCount" id="column-count" min={1} defaultValue={defaultColumnCount} ref={columnCountInput} />
+        </div>
+        <div>
+          <label htmlFor="row-count">Height</label>
+          <input type="number" name="rowCount" id="row-count" min={1} defaultValue={defaultRowCount} ref={rowCountInput} />
+        </div>
+        <div>
+          <label htmlFor="mine-count">Mines</label>
+          <input type="number" name="mineCount" id="mine-count" min={1} defaultValue={defaultMineCount} ref={mineCountInput}/>
+        </div>
+        <div>
+          <button onClick={onCancel}>Cancel</button>
+          <button onClick={handleOk}>Ok</button>
+        </div>
       </div>
     </Modal>
   );
@@ -83,9 +88,7 @@ function Dropdown(props) {
 function LevelMenu({current, onClick}) {
   const handleClick = (value) => {
     return () => {
-      if (value !== current) {
-        onClick(value);
-      }
+      onClick(value);
     };
   };
 
@@ -139,29 +142,18 @@ export function MineSweeper() {
     setResetButtonFace('normal');
   };
 
-  const handleLevelChange = (e) => {
-    if (e.target.checked) {
-      const level = levels[e.target.value];
-      resetMineField(level.rowCount, level.columnCount, level.mineCount);
-      sw.reset();
-      setResetButtonFace('normal');
-    }
-  };
-
   const [level, setLevel] = useState('beginner');
   const [customLevelModalShow, setCustomLevelModalShow] = useState(false);
   const handleLevelMenuClick = (value) => {
-    if (value !== level) {
-      if (value === 'custom') {
-        setCustomLevelModalShow(true);
-      }
-      else {
-        setLevel(value);
-        const level = levels[value];
-        resetMineField(level.rowCount, level.columnCount, level.mineCount);
-        sw.reset();
-        setResetButtonFace('normal');
-      }
+    if (value === 'custom') {
+      setCustomLevelModalShow(true);
+    }
+    else if (value !== level) {
+      setLevel(value);
+      const level = levels[value];
+      resetMineField(level.rowCount, level.columnCount, level.mineCount);
+      sw.reset();
+      setResetButtonFace('normal');
     }
   };
 

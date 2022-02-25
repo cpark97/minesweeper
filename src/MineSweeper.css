@@ -68,3 +68,29 @@
 .dropdown-item input {
     pointer-events: none;
 }
+
+.custom-level-modal {
+    background-color: #D3D3D3;
+    border: black solid 1px;
+    padding: 10px;
+}
+
+.custom-level-modal > div {
+    text-align: right;
+}
+
+.custom-level-modal > div > input {
+    width: 100px;
+    margin-left: 10px;
+}
+
+.custom-level-modal > div:last-child {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.custom-level-modal > div:last-child button {
+    flex: 1 1;
+    margin: 0 5px;
+}
