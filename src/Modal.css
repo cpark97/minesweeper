@@ -14,7 +14,6 @@
 }
 
 .modal__window {
-    width: auto;
-    height: auto;
+    display: inline-block;
     margin: auto;
 }
