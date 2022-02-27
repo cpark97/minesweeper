@@ -1,12 +1,10 @@
 import { StrictMode } from 'react';
 import { render } from 'react-dom';
-// import { HelloWorld } from './HelloWorld';
-// import Board from './Board';
-import MineSweeper from './MineSweeper';
+import MineSweeperPage from './MineSweeperPage';
 
 render(
   <StrictMode>
-    <MineSweeper/>
+    <MineSweeperPage/>
   </StrictMode>,
   document.getElementById('root'),
 );
