@@ -37,6 +37,22 @@ function Mine() {
   );
 }
 
+function Mine2() {
+  return (
+    <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="black" strokeWidth="10">
+        <line x1="64" y1="0" x2="64" y2="128"/>
+        <line x1="0" y1="64" x2="128" y2="64"/>
+        <line x1="23" y1="23" x2="105" y2="105"/>
+        <line x1="23" y1="105" x2="105" y2="23"/>
+      </g>
+      <circle cx="64" cy="64" r="45" fill="black"/>
+      <circle cx="52" cy="52" r="12" fill="white"/>
+    </svg>
+  );
+}
+
+
 export function Cell(props) {
   const className = [
     'board__cell',
@@ -54,7 +70,7 @@ export function Cell(props) {
     if (props.value === 0) {
       displayValue = null;
     } else if (props.value === -1) {
-      displayValue = <Mine />;
+      displayValue = <Mine2 />;
     } else {
       displayValue = props.value;
       className.push(`board__cell--${props.value}`);
