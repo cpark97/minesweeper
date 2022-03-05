@@ -16,10 +16,6 @@
     height: 25px;
     padding: 0;
     user-select: none;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    vertical-align: middle;
 }
 
 .board__cell--1 {
@@ -54,13 +50,6 @@
     color: #808080;
 }
 
-.board__cell svg {
-    display: block;
-    width: 16px;
-    height: 16px;
-    margin: auto;
-}
-
 .board__cell--close {
     border-left: white solid 3px;
     border-top: white solid 3px;
@@ -69,10 +58,34 @@
     background-color: #D3D3D3;
 }
 
+.board__cell--close svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+}
+
 .board__cell--open {
     border-left: gray solid 1px;
     border-top: gray solid 1px;
     background-color: #D3D3D3;
+    line-height: 24px;  /* open 상태에서 위쪽 border가 1px이므로 최대 24px */
+    font-family: Arial, "Noto Sans", sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.board__cell--dead {
+    background: #FF0000;
+}
+
+.board__cell--open svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: auto;
 }
 
 .board__cell--active {

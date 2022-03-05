@@ -114,13 +114,13 @@ export function MineSweeper() {
   const sw = useRoughStopwatch();
   const [resetButtonFace, setResetButtonFace] = useState('normal');
   const handleChange = (newMineField) => {
-    if (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount) {
-      sw.pause();
-      setResetButtonFace('succeeded');
-    }
-    else if (newMineField.isMineOpened) {
+    if (newMineField.isMineOpened) {
       sw.pause();
       setResetButtonFace('failed');
+    }
+    else if (newMineField.openedCount === newMineField.rowCount * newMineField.columnCount - newMineField.mineCount) {
+      sw.pause();
+      setResetButtonFace('succeeded');
     }
     else if (sw.state === 'RESET' && newMineField.openedCount > 0) {
       sw.resume();
@@ -167,6 +167,8 @@ export function MineSweeper() {
     sw.reset();
     setResetButtonFace('normal');
   }
+
+  const failed = mineField.isMineOpened;
   
   return (
     <div>
@@ -191,6 +193,7 @@ export function MineSweeper() {
           openCell={openCell}
           flagCell={flagCell}
           chordCell={chordCell}
+          failed={failed}
         />
       </div>
     </div>
