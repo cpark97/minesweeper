@@ -62,7 +62,7 @@ export function Cell(props) {
       className[1] = 'board__cell--open';
       displayValue = <Mine />;
     }
-    else if (props.active) {
+    else if (props.active && !props.failed) {
       className[1] = 'board__cell--active';
     }
   }
