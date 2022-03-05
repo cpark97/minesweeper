@@ -107,7 +107,7 @@ function useHint(cells, cellStates) {
 }
 
 export function Board(props) {
-  const {cells, cellStates, openCell, flagCell, chordCell} = props;
+  const {cells, cellStates, openCell, flagCell, chordCell, failed} = props;
   const {isActive, setHint} = useHint(cells, cellStates);
 
   const rows = [];
@@ -124,6 +124,7 @@ export function Board(props) {
           onMouseUp={(e) => handleCellMouseUp(e, i, j, openCell, chordCell, active, setHint)}
           onMouseEnter={(e) => handleCellMouseEnter(e, i, j, setHint)}
           onMouseLeave={(e) => handleCellMouseLeave(setHint)}
+          failed={failed}
         />
       );
     }

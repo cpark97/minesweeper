@@ -167,6 +167,8 @@ export function MineSweeper() {
     sw.reset();
     setResetButtonFace('normal');
   }
+
+  const failed = mineField.isMineOpened;
   
   return (
     <div>
@@ -191,6 +193,7 @@ export function MineSweeper() {
           openCell={openCell}
           flagCell={flagCell}
           chordCell={chordCell}
+          failed={failed}
         />
       </div>
     </div>

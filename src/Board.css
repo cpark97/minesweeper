@@ -77,6 +77,10 @@
     vertical-align: middle;
 }
 
+.board__cell--dead {
+    background: #FF0000;
+}
+
 .board__cell--open svg {
     display: block;
     width: 20px;
