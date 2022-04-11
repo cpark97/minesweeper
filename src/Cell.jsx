@@ -1,3 +1,5 @@
+import { CellState } from './immutable-mine-field';
+
 function preventDefault(e) {
   e.preventDefault();
 }
@@ -57,7 +59,7 @@ export function Cell(props) {
   ];
   let displayValue = null;
 
-  if (props.state === 0) {
+  if (props.state === CellState.Closed) {
     if (props.failed && props.value === -1) {
       className[1] = 'board__cell--open';
       displayValue = <Mine />;
@@ -66,7 +68,7 @@ export function Cell(props) {
       className[1] = 'board__cell--active';
     }
   }
-  if (props.state === 1) {
+  if (props.state === CellState.Opened) {
     className[1] = 'board__cell--open';
 
     if (props.value === -1) {
@@ -78,7 +80,7 @@ export function Cell(props) {
       className.push(`board__cell--${props.value}`);
     }
   }
-  else if (props.state === 2) {
+  else if (props.state === CellState.Flagged) {
     if (props.failed && props.value !== -1) {
       // wrong flag
       className[1] = 'board__cell--open';

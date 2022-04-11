@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { CellState } from './immutable-mine-field';
 import Cell from './Cell';
 import './Board.css';
 
@@ -77,7 +78,7 @@ function useHint(cells, cellStates) {
     const cellState = cellStates[cellRow][cellCol];
 
     if (hint.chord) {
-      if (!(cellState === 1 && cellValue === 0)) {
+      if (!(cellState === CellState.Opened && cellValue === 0)) {
         return {
           isActive: (row, col) => (
             Math.abs(row - cellRow) <= 1 &&
@@ -88,7 +89,7 @@ function useHint(cells, cellStates) {
       }
     }
     else {
-      if (cellState === 0) {
+      if (cellState === CellState.Closed) {
         return {
           isActive: (row, col) => (
             row == cellRow &&

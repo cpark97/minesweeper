@@ -35,9 +35,15 @@ function generateRandomCells(rowCount, columnCount, mineCount) {
   return cells;
 }
 
+export const CellState = Object.freeze({
+  Closed: 0,
+  Opened: 1,
+  Flagged: 2,
+});
+
 export function newMineField(rowCount, columnCount, mineCount) {
   const cells = generateRandomCells(rowCount, columnCount, mineCount);
-  const cellStates = Array.from(cells, (row) => Array.from(row, () => 0));
+  const cellStates = Array.from(cells, (row) => Array.from(row, () => CellState.Closed));
   return {
     rowCount,
     columnCount,
@@ -58,14 +64,14 @@ function openCells(mineField, cellsToOpen) {
   let newOpenedCount = openedCount;
 
   for (const [row, col] of cellsToOpen) {
-    if (newCellStates[row][col] !== 0) {
+    if (newCellStates[row][col] !== CellState.Closed) {
       continue;
     }
 
     if (newCellStates[row] === cellStates[row]) {
       newCellStates[row] = [...cellStates[row]];
     }
-    newCellStates[row][col] = 1;
+    newCellStates[row][col] = CellState.Opened;
     newOpenedCount += 1;
 
     if (cells[row][col] !== 0) {
@@ -84,12 +90,12 @@ function openCells(mineField, cellsToOpen) {
         const tc = c + dc8[i];
 
         if (tr < 0 || tr >= rowCount || tc < 0 || tc >= columnCount) { continue; }
-        if (newCellStates[tr][tc] !== 0) { continue; }
+        if (newCellStates[tr][tc] !== CellState.Closed) { continue; }
 
         if (newCellStates[tr] === cellStates[tr]) {
           newCellStates[tr] = [...cellStates[tr]];
         }
-        newCellStates[tr][tc] = 1;
+        newCellStates[tr][tc] = CellState.Opened;
         newOpenedCount += 1;
         
         if (cells[tr][tc] === 0) {
@@ -119,7 +125,7 @@ export function openCell(mineField, row, col) {
 
 export function chordCell(mineField, row, col) {
   const {cells, cellStates} = mineField;
-  if (cellStates[row][col] !== 1 || cells[row][col] <= 0) {
+  if (cellStates[row][col] !== CellState.Opened || cells[row][col] <= 0) {
     return mineField;
   }
 
@@ -131,10 +137,10 @@ export function chordCell(mineField, row, col) {
     if (r < 0 || r >= cellStates.length || c < 0 || c >= cellStates[r].length) {
       continue;
     }
-    if (cellStates[r][c] === 2) {
+    if (cellStates[r][c] === CellState.Flagged) {
       ++flagCnt;
     }
-    else if (cellStates[r][c] === 0) {
+    else if (cellStates[r][c] === CellState.Closed) {
       closedCells.push([r, c]);
     }
   }
@@ -148,13 +154,23 @@ export function chordCell(mineField, row, col) {
 
 export function toggleCellFlag(mineField, row, col) {
   const {cellStates, flagCount} = mineField;
-  if (cellStates[row][col] === 1) {
+  if (cellStates[row][col] === CellState.Opened) {
     return mineField;
   }
 
   const newCellStates = [...cellStates];
   newCellStates[row] = [...cellStates[row]];
-  newCellStates[row][col] = 2 - cellStates[row][col];
+  let newFlagCount;
 
-  return {...mineField, cellStates: newCellStates, flagCount: flagCount + newCellStates[row][col] - 1};
+  if (cellStates[row][col] === CellState.Closed) {
+    newCellStates[row][col] = CellState.Flagged;
+    newFlagCount = flagCount + 1;
+  } else {
+    newCellStates[row][col] = CellState.Closed;
+    newFlagCount = flagCount - 1;
+  }
+
+  console.log(cellStates[row][col], newCellStates[row][col]);
+
+  return {...mineField, cellStates: newCellStates, newFlagCount};
 }
