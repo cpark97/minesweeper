@@ -26,12 +26,17 @@
         ></ins> -->
         <ins id="dynamic-ad-test"></ins>
         <script>
-            const elem = document.getElementById('dynamic-ad-test');
-            elem.setAttribute('class', 'adsbygoogle');
-            elem.setAttribute('data-ad-client', 'ca-pub-3538821511150650');
-            elem.setAttribute('data-ad-slot', '4641340903');
-            elem.style = 'display:inline-block;width:728px;height:90px';
-            (adsbygoogle = window.adsbygoogle || []).push({});
+            function renderAd () {
+                const elem = document.getElementById('dynamic-ad-test');
+                elem.setAttribute('class', 'adsbygoogle');
+                elem.setAttribute('data-ad-client', 'ca-pub-3538821511150650');
+                elem.setAttribute('data-ad-slot', '4641340903');
+                elem.style = 'display:inline-block;width:728px;height:90px';
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            }
+            setTimeout(() => {
+                renderAd();
+            }, 3000);
         </script>
         <div id="root"></div>
         <script src="index.js"></script>
