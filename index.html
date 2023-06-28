@@ -18,11 +18,19 @@
             (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
         <!-- 수평형고정테스트 -->
-        <ins class="adsbygoogle"
+        <!-- <ins id="dynamic-ad-test" 
+            class="adsbygoogle"
             style="display:inline-block;width:728px;height:90px"
             data-ad-client="ca-pub-3538821511150650"
-            data-ad-slot="4641340903"></ins>
+            data-ad-slot="4641340903"
+        ></ins> -->
+        <ins id="dynamic-ad-test"></ins>
         <script>
+            const elem = document.getElementById('dynamic-ad-test');
+            elem.setAttribute('class', 'adsbygoogle');
+            elem.setAttribute('data-ad-client', 'ca-pub-3538821511150650');
+            elem.setAttribute('data-ad-slot', '4641340903');
+            elem.style = 'display:inline-block;width:728px;height:90px';
             (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
         <div id="root"></div>
